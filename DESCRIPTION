@@ -1,0 +1,13 @@
+Package: GenOrd
+Type: Package
+Title: Simulation of Discrete Random Variables with Given Correlation Matrix and Marginal Distributions via a Gaussian or Student's t Copula
+Version: 2.0.0
+Authors@R: c(person(given = "Alessandro", family = "Barbiero", role = c("aut", "cre"), email = "alessandro.barbiero@unimi.it"), person(given = c("Pier", "Alda"), family = "Ferrari", role = "aut"))
+Author: Alessandro Barbiero [aut, cre], Pier Alda Ferrari [aut]
+Maintainer: Alessandro Barbiero <alessandro.barbiero@unimi.it>
+Description: A Gaussian or Student's t copula-based procedure for generating samples from discrete random variables with prescribed correlation matrix and marginal distributions.
+License: GPL-3
+Encoding: UTF-8
+Imports: Matrix, mvtnorm, bbmle, cubature, stats, utils
+RoxygenNote: 7.3.2
+
