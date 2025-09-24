@@ -10,4 +10,3 @@ License: GPL-3
 Encoding: UTF-8
 Imports: Matrix, mvtnorm, bbmle, cubature, stats, utils
 RoxygenNote: 7.3.2
-
