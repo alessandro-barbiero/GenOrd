@@ -7,7 +7,12 @@ Correlations of discretized variables
 The function computes the correlation matrix of the \eqn{k} variables, with given marginal distributions, derived discretizing a \eqn{k}-variate standard normal or Student's \eqn{t} variable with given correlation matrix
 }
 \usage{
-contord(marginal, Sigma, support = list(), Spearman = FALSE, df=Inf, integerdf=TRUE, prob=FALSE)
+contord(marginal, Sigma,
+support = list(),
+Spearman = FALSE,
+df=Inf,
+integerdf=TRUE,
+prob=FALSE)
 }
 \arguments{
   \item{marginal}{
