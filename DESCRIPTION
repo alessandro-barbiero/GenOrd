@@ -1,7 +1,7 @@
 Package: GenOrd
 Type: Package
-Title: Simulation of Discrete Random Variables with Given Correlation Matrix and Marginal Distributions via a Gaussian or Student's t Copula
-Version: 2.0.0
+Title: Simulation of Discrete Random Variables with Marginal Distributions and Correlation Matrix and via a Gaussian or Student's t Copula
+Version: 2.1.0
 Authors@R: c(person(given = "Alessandro", family = "Barbiero", role = c("aut", "cre"), email = "alessandro.barbiero@unimi.it"), person(given = c("Pier", "Alda"), family = "Ferrari", role = "aut"))
 Author: Alessandro Barbiero [aut, cre], Pier Alda Ferrari [aut]
 Maintainer: Alessandro Barbiero <alessandro.barbiero@unimi.it>

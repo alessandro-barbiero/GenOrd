@@ -4,7 +4,7 @@
 Drawing a sample of discrete data
 }
 \description{
-The function draws a sample from a multivariate discrete variable with correlation matrix \code{Sigma} and prescribed marginal distributions \code{marginal}}
+The function draws a sample from a multivariate discrete variable obtained by discretizing a multivariate Student's t or Gaussian random variable with pressribed correlation matrix \code{Sigma} and marginal distributions \code{marginal}}
 \usage{
 ordsample(n, marginal, Sigma, support = list(), Spearman = FALSE,
 cormat = "discrete", df=Inf)
@@ -18,7 +18,7 @@ a list of \eqn{k} elements, where \eqn{k} is the number of variables.
 The \eqn{i}-th element of \code{marginal} is the vector of the cumulative probabilities defining the marginal distribution of the \eqn{i}-th component of the  multivariate variable. If the \eqn{i}-th component can take \eqn{k_i} values, the \eqn{i}-th element of marginal will contain \eqn{k_i-1} probabilities (the \eqn{k_i}-th is obviously 1 and shall not be included).
 }
   \item{Sigma}{
-the target correlation matrix of the multivariate discrete variable
+the target correlation matrix of the multivariate latent t or Gaussian random variable or of the multivariate discrete random variable
 }
   \item{support}{
 a list of \eqn{k} elements, where \eqn{k} is the number of variables. The \eqn{i}-th element of \code{support} is the vector containing the ordered values of the support of the \eqn{i}-th variable. By default, the support of the \eqn{i}-th variable is \eqn{1,2,...,k_i}
@@ -27,14 +27,14 @@ a list of \eqn{k} elements, where \eqn{k} is the number of variables. The \eqn{i
 if \code{TRUE}, the function finds Spearman's correlations (and it is not necessary to provide \code{support}), if \code{FALSE} (default) Pearson's correlations 
 }
   \item{cormat}{
-\code{"discrete"} if the \code{Sigma} in input is the target correlation matrix of the multivariate discrete variable; \code{"continuous"} if the \code{Sigma} in input is the intermediate correlation matrix of the multivariate standard normal
+\code{"discrete"} if the \code{Sigma} in input is the target correlation matrix of the multivariate discrete variable; \code{"continuous"} if the \code{Sigma} in input is the intermediate correlation matrix of the multivariate t or Gaussian random variable
 }
   \item{df}{
-the degrees of freedom of the multivariate Student's t distribution
+the degrees of freedom of the multivariate Student's t distribution. By default, set equal to \code{Inf}, corresponding to the multivariate normal
 }
 }
 \value{
-a \eqn{n\times k} matrix of values drawn from the \eqn{k}-variate discrete r.v. with the desired marginal distributions and correlation matrix
+A \eqn{n\times k} matrix of values drawn from the \eqn{k}-variate discrete r.v. with the desired marginal distributions and correlation matrix
 }
 \author{
 Alessandro Barbiero, Pier Alda Ferrari
@@ -46,7 +46,7 @@ Alessandro Barbiero, Pier Alda Ferrari
 # Example 1
 
 # draw a sample from a bivariate ordinal variable
-# with 4 of categories and asymmetrical marginal distributions
+# with 4 categories and asymmetrical marginal distributions
 # and correlation coefficient 0.6 (to be checked)
 k <- 2
 marginal <- list(c(0.1,0.3,0.6), c(0.4,0.7,0.9))
@@ -58,7 +58,7 @@ n <- 1000
 m <- ordsample(n, marginal, Sigma)
 head(m)
 # sample correlation matrix
-cor(m) # compare it with Sigma
+cor(m) # compare it to Sigma
 # empirical marginal distributions
 cumsum(table(m[,1]))/n
 cumsum(table(m[,2]))/n # compare them with the two marginal distributions
@@ -66,12 +66,12 @@ cumsum(table(m[,2]))/n # compare them with the two marginal distributions
 # Example 1bis
 
 # draw a sample from a bivariate ordinal variable
-# with 4 of categories and asymmetrical marginal distributions
+# with 4 categories and asymmetrical marginal distributions
 # and Spearman correlation coefficient 0.6 (to be checked)
 k <- 2
 marginal <- list(c(0.1,0.3,0.6), c(0.4,0.7,0.9))
 corrcheck(marginal, Spearman=TRUE) # check ok
-Sigma <- matrix(c(1,0.6,0.6,1),2,2)
+Sigma <- matrix(c(1,0.6,0.6,1), 2, 2)
 # sample size 1000
 n <- 1000
 # generate a sample of size n
@@ -92,7 +92,7 @@ k <- 2
 marginal <- list(pbinom(0:2, 3, 1/3),pbinom(0:3, 4, 2/3))
 marginal
 corrcheck(marginal, support=list(0:3, 0:4)) # check ok
-Sigma <- matrix(c(1,0.6,0.6,1),2,2)
+Sigma <- matrix(c(1,0.6,0.6,1), 2, 2)
 # sample size 1000
 n <- 1000
 # generate a sample of size n
@@ -155,7 +155,7 @@ Sigma <- matrix(0.25, 2, 2)
 diag(Sigma) <- 1
 # sample size
 n <- 10000
-# preliminar stage: support TRUNCATION
+# preliminary stage: support TRUNCATION
 # required for recovering the correlation matrix
 # of the standard bivariate normal
 # truncation error
@@ -235,7 +235,7 @@ Sigma <- matrix(0.25, k, k)
 diag(Sigma) <- 1
 # sample size
 n <- 10000
-# preliminar stage: support TRUNCATION
+# preliminary stage: support TRUNCATION
 # required for recovering the correlation matrix
 # of the standard bivariate normal
 # truncation error
@@ -263,7 +263,7 @@ RB <- corrcheck(marginal, support=support)
 RL <- RB[[1]]
 RU <- RB[[2]]
 Sigma <= RU & Sigma >= RL # OK
-# compute correlation matrix of the 4-variate standard normal
+# compute the correlation matrix of the 4-variate standard normal
 res <- ordcont(marginal, Sigma, support=support)
 res[[1]]
 Sigma <- res[[1]]

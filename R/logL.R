@@ -37,22 +37,12 @@ logL <- function(arg, x)
   thx <- c(-Inf,qt(emarginal[[1]],df),Inf)
   thy <- c(-Inf,qt(emarginal[[2]],df),Inf)
   if (df <= 0) return(999*n)
-  Sigma <- matrix(c(1,rho,rho,1),2,2)
-
-  integrand <- function(arg, df)
-  {
-    x <- arg[1]
-    y <- arg[2]
-    ff <- dmvt(c(x,y), sigma=Sigma, df=df, log=FALSE)
-    return(ff)
-  }
-
   for(i in 1:k1)
   {
     for(j in 1:k2)
     {
-      P[i,j] = cuhre(f=integrand, df=df, lowerLimit=c(thx[i],thy[j]), upperLimit=c(thx[i+1],thy[j+1]))$integral
-      #pStudent(lower=c(thx[i],thy[j]),upper=c(thx[i+1],thy[j+1]),df=df,loc=c(0,0),scale=Sigma)
+      # NEW FUNCTION
+      P[i,j] <- p_rect_t(thx[i], thx[i+1], thy[j], thy[j + 1], rho, df)
     }
   }
   if (any(P <= 0)) return(n*1e6)

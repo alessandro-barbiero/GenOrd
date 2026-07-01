@@ -8,7 +8,7 @@
 #' @export
 # (full) log-likelihood function for the t-copula-based discrete distribution
 # function of rho, df and the (m1-1) plus (m2-1) probabilities of the two margins
-logLfull <- function(arg, x)
+logLfullz <- function(arg, x)
 {
   k <- dim(x)[2]
   n <- dim(x)[1]
@@ -27,14 +27,16 @@ logLfull <- function(arg, x)
   p <- matrix(0,k1,k2)
   T <-table(x[,1],x[,2])
   rho <- arg[1]
-  px <- arg[2:(k1+1)]
-  py <- arg[(k1+2):(k1+k2+1)]
+  zx <- arg[2:(k1+1)]
+  px <- exp(zx)/sum(exp(zx))
+  zy <- arg[(k1+2):(k1+k2+1)]
+  py <- exp(zy)/sum(exp(zy))
   Px <- c(0,cumsum(px));Px[k1+1]<-1
   Py <- c(0,cumsum(py));Py[k2+1]<-1
   Sigma <- matrix(c(1,rho,rho,1),2,2)
   if(length(arg)==k1+k2+2){
     df <- arg[k1+k2+2] # Student's t degrees of freedom
-    if (df <= 0 | abs(rho)>1) return(1e6*n)
+    if (df <= 0 | abs(rho)>1) return(1e06*n)
     thx <- qt(Px, df=df)
     thy <- qt(Py, df=df)
     for(i in 1:k1)

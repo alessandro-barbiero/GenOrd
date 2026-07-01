@@ -1,10 +1,10 @@
 \name{ordcont}
 \alias{ordcont}
 \title{
-Computing the "intermediate" correlation matrix for the multivariate standard normal in order to achieve the "target" correlation matrix for the multivariate discrete variable
+Computing the "intermediate" correlation matrix for the multivariate standard normal or Student's t in order to achieve the "target" correlation matrix for the multivariate discrete variable
 }
 \description{
-The function computes the correlation matrix of the \eqn{k}-dimensional standard normal r.v. yielding the desired correlation matrix \code{Sigma} for the \eqn{k}-dimensional r.v. with desired marginal distributions \code{marginal}
+The function computes the correlation matrix of the \eqn{k}-dimensional standard normal or Student's t random variable that yields the desired correlation matrix \code{Sigma} for the \eqn{k}-dimensional r.v. with desired marginal distributions
 }
 \usage{
 ordcont(marginal, Sigma, support = list(), Spearman = FALSE,
@@ -31,8 +31,11 @@ the maximum tolerated error between target and actual correlations
 the maximum number of iterations allowed for the algorithm
 }
   \item{df}{
-the degrees of freedom of the multivariate Student's t
+the degrees of freedom of the multivariate Student's t. By default, set equal to \code{Inf}, corresponding to the multivariate normal
 }
+}
+\details{
+This function implements what is sometimes called the ``inverse problem'' or the ``matching correlation problem'' (see the references), that is, it seeks the correlation matrix of the (latent) continuous (normal or Student's t) random vector that ensures a target correlation matrix for the (observed) discrete random vector, given the margins for the latter (and the number of degrees of freedom for the former, if Student's t)
 }
 \value{
 a list of five elements
@@ -56,13 +59,23 @@ the actual maximum error (the maximum absolute deviation between actual and targ
 Alessandro Barbiero, Pier Alda Ferrari
 }
 \note{
-For some choices of \code{marginal} and \code{Sigma}, there may not exist a feasible \eqn{k}-variate probability mass function or the algorithm may not provide a feasible correlation matrix \code{SigmaC}. In this case, the procedure stops and exits with an error.
-The value of the maximum tolerated absolute error \code{epsilon} on the elements of the correlation matrix for the target r.v. can be set by the user: a value between 1e-6 and 1e-2 seems to be an acceptable compromise assuring both the precision of the results and the convergence of the algorithm; moreover, a maximum number of iterations can be chosen (\code{maxit}), in order to avoid possible endless loops
+For some choices of \code{marginal} and \code{Sigma}, there may not exist a feasible \eqn{k}-variate probability mass function or the algorithm may not provide a feasible correlation matrix \code{SigmaC} (see, for example, Changanty and Joe, 2006). In this case, the procedure stops and exits with an error.
+The value of the maximum tolerated absolute error \code{epsilon} on the elements of the correlation matrix for the target r.v. can be set by the user: a value between 1e-6 and 1e-2 appears to be an acceptable compromise ensuring both precision of the results and convergence of the algorithm; moreover, a maximum number of iterations can be chosen (\code{maxit}), in order to avoid possible endless loops
+}
+\references{
+Ferrari, P.A., Barbiero, A.: Simulating ordinal data. Multivariate Behavioral Research 47(4), 1–24 (2012)
+
+Cario, M., Nelson, B.: Modeling and generating random vectors with arbitrary marginal distributions and correlation matrix. Technical report, Department of Industrial Engineering and Management Sciences, Northwestern University, Evanston, Illinois (1997)
+
+Chaganty, N. R., Joe, H. (2006). Range of correlation matrices for dependent Bernoulli random variables. Biometrika, 93(1), 197-206.
+
+Xiao, Q.: Generating correlated random vector involving discrete variables. Communications in Statistics - Theory and Methods 46(4), 1594–1605 (2017)
 }
 \seealso{
 \code{\link{contord}}, \code{\link{ordsample}}, \code{\link{corrcheck}}
 }
 \examples{
+# EX.1
 # consider a 4-dimensional ordinal variable
 k <- 4
 # with different number of categories
@@ -74,7 +87,7 @@ corrcheck(marginal)
 Sigma <- matrix(c(1,0.5,0.4,0.3,0.5,1,0.5,0.4,0.4,0.5,1,0.5,0.3,0.4,0.5,1),
 4, 4, byrow=TRUE)
 Sigma
-# the correlation matrix of the standard 4-dimensional standard normal
+# the correlation matrix of the standard 4-dimensional standard normal or Student's t
 # ensuring Sigma is
 res <- ordcont(marginal, Sigma)
 res[[1]]
@@ -96,6 +109,19 @@ res[[1]]
 res.t <- ordcont(marginal, Sigma, df=10)
 res.t$SigmaC
 res.t$SigmaO
+# EX.2
+# contord and ordcont
+margins <- list(1/2, c(1/3,2/3), c(1/6,1/2,5/6))
+Sigma <- matrix(0.3, 3 ,3)
+diag(Sigma) <- 1
+Sigma
+df <- 3
+# the "direct problem"
+res.co <- contord(margins, Sigma, df=df)
+res.co
+# the "inverse problem"
+res.oc <- ordcont(margins, Sigma=res.co, df=df)
+res.oc$SigmaC # it is almost equal to Sigma
 }
 \keyword{htest}
 \keyword{models}

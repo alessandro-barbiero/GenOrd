@@ -4,7 +4,7 @@
 Checking correlations for feasibility
 }
 \description{
-The function returns the lower and upper bounds of the correlation coefficients of each pair of discrete variables given their marginal distributions, i.e., returns the range of feasible bivariate correlations.
+The function returns the lower and upper bounds of the pairwise correlation coefficients of the discrete variables given their marginal distributions, i.e., returns the range of feasible bivariate correlations.
 }
 \usage{
 corrcheck(marginal, support = list(), Spearman = FALSE)
@@ -22,7 +22,7 @@ a list of \eqn{k} elements, where \eqn{k} is the number of variables. The \eqn{i
 }
 }
 \value{
-The functions returns a list of two matrices: the former contains the lower bounds, the latter the upper bounds of the feasible pairwise correlations (on the extra-diagonal elements)
+The function returns a list of two matrices: the former contains the lower bounds, the latter contains the upper bounds of the feasible pairwise correlations (on the extra-diagonal elements)
 }
 \author{
 Alessandro Barbiero, Pier Alda Ferrari
@@ -34,7 +34,7 @@ Alessandro Barbiero, Pier Alda Ferrari
 # four variables
 k <- 4
 # with 2, 3, 4, and 5 categories (Likert scales, by default)
-kj <- c(2,3,4,5)
+kj <- 2:5
 # and these marginal distributions (set of cumulative probabilities)
 marginal <- list(0.4, c(0.6,0.9), c(0.1,0.2,0.4), c(0.6,0.7,0.8,0.9))
 corrcheck(marginal) # lower and upper bounds for Pearson's rho
