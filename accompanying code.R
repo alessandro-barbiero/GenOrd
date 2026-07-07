@@ -6,6 +6,116 @@
 
 library(GenOrd)
 
+###########################
+# some numerical examples #
+###########################
+rho <- 0.5
+df <- 3
+Sigma <-matrix(c(1, rho, rho, 1), 2, 2)
+F <- c(0.2, 0.4, 0.6, 0.8)
+marginal <- list(F, F)
+P.G <- contord(marginal, Sigma, prob=TRUE)
+lapply(P.G, function(m) round(m, 4))
+P.t <- contord(marginal, Sigma, df=3, prob=TRUE)
+lapply(P.t, function(m) round(m, 4))
+round(prop.table(P.G[[1]], margin = 1), 4)
+round(prop.table(P.t[[1]], margin = 1), 4)
+
+#
+set.seed(12345)
+k <- 7
+F <- cumsum((2^((k-1):1))/(2^k-1))
+marginal <- list(F,F)
+corrcheck(marginal)
+rho <- 0.5
+Sigma <-matrix(c(1,rho,rho,1), 2, 2)
+df <- 5
+res.ord <- contord(marginal, Sigma, df=df, prob=TRUE)
+round(res.ord$pij, 4)
+res.ord$SigmaOrd
+x <- ordsample(10000, marginal, Sigma, df=df, cormat="continuous")
+head(x)
+cor(x)
+rho.ord <- res.ord$SigmaOrd[1,2]
+ordcont(marginal, Sigma=matrix(c(1,rho.ord,rho.ord,1), 2, 2), df=df)
+
+# degrees-of-freedom and tail dependence
+# in the discrete setting
+rho <- 0.5
+Sigma <- matrix(c(1,rho,rho,1),2,2)
+m <- 4
+# discrete uniform margins
+margins <- list((1:3)/4, (1:3)/4)
+contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
+# reverse-U shaped margins
+margins <- list(c(1,3,5)/6,c(1,3,5)/6)
+contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
+# U shaped margins
+margins <- list(c(2,3,4)/6,c(2,3,4)/6)
+contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
+# margins with decreasing pattern
+F <- cumsum((2^((4-1):1))/(2^4-1))
+margins <- list(F, F)
+contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
+# Increasing the degrees-of-freedom parameter,
+# while keeping the margins and the latent correlation fixed,
+# decreases the probability of the (m,m) cell,
+# which may be viewed as a rough measure of tail dependence
+# in the discrete setting
+
+# also with unequal margins
+margins <- list((1:3)/4, c(1,3,5)/6)
+contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
+
+margins <- list((1:3)/4, c(2,3,4)/6)
+contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
+
+margins <- list((1:3)/4, cumsum((2^((4-1):1))/(2^4-1)))
+contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
+contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
+# etc.
+
+###########################
+# Example for Section 2.2 #
+###########################
+# uniform margins with 5 categories
+margins <- list(c(1,2,3,4)/5,c(1,2,3,4)/5)
+Sigma <- matrix(c(1,0.5,0.5,1),2,2)
+df.1 <- 20
+df.2 <- 2
+# 
+Sigma.1 <- ordcont(margins, Sigma, df=df.1)$SigmaC
+rho.1 <- Sigma.1[1,2]
+rho.1
+Sigma.2 <- ordcont(margins, Sigma, df=df.2)$SigmaC
+rho.2 <- Sigma.2[1,2]
+rho.2
+# check
+contord(margins, Sigma.1, df=df.1)
+contord(margins, Sigma.2, df=df.2)
+# rho^t.1 and df.1 yields the same correlation as rho^t.1 and df.2
+
+
 # generate a symmetric U-shaped or reverse U-shaped distribution with k categories
 
 gen_prob_seq <- function(k, type="uni") { # reverse U-shaped
@@ -85,6 +195,7 @@ Eudist <- function(pij, qij)
 ############ as a function of rho and df #############
 ########## for different types of margins ############
 ######################################################
+# -> Section 2.3, Table 1, and
 # -> Tables B1 to B4, appendix B
 #
 marginal <- list()
@@ -130,7 +241,7 @@ print(round(rhoD,4))
 # the final correlation for assigned t-copula correlation and #
 ################ degrees of freedom parameters ################
 ###############################################################
-# SECTION 2.4
+# -> SECTION 2.3, Table 2, and Appendix C, Figure C1 to C4
 library(nloptr)
 # postscript("maxttcorr.eps",width=12,height=6,horizontal=TRUE)
 kvec   <- 2:7 # n.of categories
@@ -179,92 +290,37 @@ for(i in 1:length(rhovec))
 # dev.off()
 
 
-# some numerical examples
-rho <- 0.5
-df <- 3
-Sigma <-matrix(c(1, rho, rho, 1), 2, 2)
-F <- c(0.2, 0.4, 0.6, 0.8)
-marginal <- list(F, F)
-P.G <- contord(marginal, Sigma, prob=TRUE)
-lapply(P.G, function(m) round(m, 4))
-P.t <- contord(marginal, Sigma, df=3, prob=TRUE)
-lapply(P.t, function(m) round(m, 4))
-round(prop.table(P.G[[1]], margin = 1), 4)
-round(prop.table(P.t[[1]], margin = 1), 4)
+# -> SECTION 2.4, Table 3
+# evaluating Total Variation Distance between Gaussian-copula and t-copula-based
+# joint distributions, as functions of nu, rho, m and type of margin
 
-#
-set.seed(12345)
-k <- 7
-F <- cumsum((2^((k-1):1))/(2^k-1))
-marginal <- list(F,F)
-corrcheck(marginal)
-rho <- 0.5
-Sigma <-matrix(c(1,rho,rho,1), 2, 2)
-df <- 5
-res.ord <- contord(marginal, Sigma, df=df, prob=TRUE)
-round(res.ord$pij, 4)
-res.ord$SigmaOrd
-x <- ordsample(10000, marginal, Sigma, df=df, cormat="continuous")
-head(x)
-cor(x)
-rho.ord <- res.ord$SigmaOrd[1,2]
-ordcont(marginal, Sigma=matrix(c(1,rho.ord,rho.ord,1), 2, 2), df=df)
-
-# degrees-of-freedom and tail dependence
-# in the discretized setting
-rho <- 0.5
-Sigma <- matrix(c(1,rho,rho,1),2,2)
-m <- 4
-# discrete uniform margins
-margins <- list((1:3)/4, (1:3)/4)
-contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
-# reverse-U shaped margins
-margins <- list(c(1,3,5)/6,c(1,3,5)/6)
-contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
-# U shaped margins
-margins <- list(c(2,3,4)/6,c(2,3,4)/6)
-contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
-# margins with decreasing pattern
-F <- cumsum((2^((4-1):1))/(2^4-1))
-margins <- list(F, F)
-contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
-# Increasing the degrees-of-freedom parameter,
-# while keeping the margins and the latent correlation fixed,
-# decreases the probability of the (m,m) cell,
-# which may be viewed as a rough measure of tail dependence
-# in the discrete setting
-
-# also with unequal margins
-margins <- list((1:3)/4, c(1,3,5)/6)
-contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
-
-margins <- list((1:3)/4, c(2,3,4)/6)
-contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
-
-margins <- list((1:3)/4, cumsum((2^((4-1):1))/(2^4-1)))
-contord(margins, Sigma, df=1, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=3, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=10, prob=TRUE)$pij[m,m]
-contord(margins, Sigma, df=20, prob=TRUE)$pij[m,m]
-# etc.
+# uniform margins
+marginal <- list()
+rhoC <- (1:9)/10
+cat <- c(2,3,4,5,6,7,8,9,10)
+vdf <- c(3,10,20,Inf)
+TV <- matrix(0,length(vdf)*length(rhoC),length(cat))
+for(h in 1:length(rhoC))
+{
+  rho <- rhoC[h]
+  for(i in 1:length(vdf)){
+    df <- vdf[i]
+    for(j in 1:length(cat))
+    {
+      k <- cat[j]
+      # uniform margins (or any other margin...)
+      marginal[[1]] <- (1:(k-1))/k
+      marginal[[2]] <- (1:(k-1))/k
+      Sigma <- matrix(rho, 2, 2)
+      diag(Sigma) <- 1
+      res <- contord(marginal=marginal, Sigma=Sigma, df=df, prob=TRUE)
+      resinf <- contord(marginal=marginal, Sigma=Sigma, df=Inf, prob=TRUE)
+      SigmaD <- res$SigmaO
+      TV[i+4*(h-1),j] <- TVdist(res$pij,resinf$pij)
+    }
+  }
+}
+print(round(TV[-4*(1:9),],4))
 
 
 ##########################
@@ -321,7 +377,7 @@ tab.G   <- contord(list(margin1,margin2), Sigma, prob=TRUE)$pij
 TVdist(tab.G, tab.obs)
 
 ##########################
-####### SECTION 4.3 ######
+####### SECTION 4.2 ######
 ##########################
 ## Analysis of real data #
 ### Type D personality ###
@@ -433,11 +489,13 @@ Sigma <- matrix(c(1,rho,rho,1),2,2)
 margin1 <- cumsum(res.G[3:5])
 margin2 <- cumsum(res.G[7:9])
 tab.n   <- contord(list(margin1,margin2), Sigma, prob=TRUE)$pij*dim(x)[1]
+tab.n
 chi.n   <- sum((tab-tab.n)^2/tab.n)
 1-pchisq(chi.n, 4*4-4-4)
 TVdist(tab/n, tab.n/n)
 
 ###############################
+##         SECTION 3         ##
 # additional simulation study #
 ## for assessing statistical ##
 ## properties of estimators  ##
