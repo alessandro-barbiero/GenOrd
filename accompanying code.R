@@ -2,6 +2,8 @@
 # R code accompanying the paper                                                #
 # Modeling correlated discrete data                                            #
 # through the multivariate Student's t distribution                            #
+# (authors: Alessandro Barbiero, Asmerilda Hitaj)                              #
+# The code is available at: https://github.com/alessandro-barbiero/GenOrd      #
 ################################################################################
 
 library(GenOrd)
@@ -282,7 +284,7 @@ for(i in 1:length(rhovec))
     p
     if(which.max(p)>k/2) p <- rev(p)
     barplot(p, ylim=c(0,0.9)) # plotting the "optimal" distribution
-    text(k/2+1/2, 0.4, formatC(-res$objective, format = "f", digits = 3), pos=3, cex=1.25)
+    text(k/2+1/2, 0.425, formatC(-res$objective, format = "f", digits = 3), pos=3, cex=1.25)
     # writing the maximum correlation
     if(j==1) mtext(substitute(list(rho^{(t)}) == list(x),list(x = rho)),side=2,line=3,las=1)
   }
@@ -376,6 +378,11 @@ margin2 <- cumsum(res.G[6:7])
 tab.G   <- contord(list(margin1,margin2), Sigma, prob=TRUE)$pij
 TVdist(tab.G, tab.obs)
 
+AIC.G <- 2*5 + 2*res.G[9]    # 5 parameters for the Gaussian model
+                            # (4 marg.prob + 1 correlation)
+AIC.G
+AIC.t <- 2*6 + 2*res.full[9] # 6 parameters for the t model
+AIC.t
 ##########################
 ####### SECTION 4.2 ######
 ##########################
@@ -441,7 +448,42 @@ G2.full <- 2*sum(tab*log(tab/tab.est.full))
 G2.full
 1-pchisq(Chi.full, 5*5-1-2-2*4)
 # TV distance
-TVdist(tab.est/n, tab/n)
+TV <- TVdist(tab.est/n, tab/n)
+# bootstrap procedure
+# bootstrap
+t1 <- Sys.time()
+set.seed(12345)
+N <- 1000
+Chi.v  <- numeric(N)
+G2.v <- numeric(N)
+TV.v <- numeric(N)
+log0 <- function(x) ifelse(x==0,0,log(x))
+for(i in 1:N)
+{
+  margin.1<-cumsum(res.mdpi.full[3:7])[-5]
+  margin.2<-cumsum(res.mdpi.full[8:11])[-5]
+  Sigma <- matrix(c(1,res.mdpi.full[1],res.mdpi.full[1],1),2,2)
+  XMC0 <- ordsample(n=n, marginal=list(margin.1,margin.2),Sigma=Sigma,
+                      cormat="continuous",df=res.mdpi.full[2])
+  tMC0 <- table(as.data.frame(XMC0))
+  r <- nrow(tMC0)
+  c <- ncol(tMC0)
+  res.b <- estcontord(XMC0, method="full", control=list(maxit=5000))
+  margin.1b<-cumsum(res.b[3:7])[-5]
+  margin.2b<-cumsum(res.b[8:11])[-5]
+  Sigma.b <- matrix(c(1,res.b[1],res.b[1],1),2,2)
+  tab.est.b <- contord(marginal=list(margin.1b,margin.2b), Sigma=Sigma.b,df=res.b[2],prob=TRUE)$pij*n
+  Chi.v[i]  <- sum((table(as.data.frame(XMC0))-tab.est.b)^2/tab.est.b)
+  G2.v[i]   <- 2*sum(tMC0*log0(tMC0/tab.est.b))
+  TV.v[i] <- TVdist(tMC0/n, tab.est.b/n)
+  print(i)
+}
+t2 <- Sys.time()
+(t2-t1)/N
+mean(Chi.v>=Chi.full)
+mean(G2.v>=G2.full)
+mean(TV.v>=TV)
+# save.image(file="bootstrapped-pvalue.Rdata")
 
 ##########################
 ####### SECTION 4.3 ######
